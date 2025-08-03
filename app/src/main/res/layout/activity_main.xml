@@ -1,27 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="24dp"
+    android:background="@color/background">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddHabit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add New Habit" />
+        android:text="➕ Add New Habit"
+        style="@style/Widget.MaterialComponents.Button"
+        app:cornerRadius="12dp"
+        android:backgroundTint="@color/primary"
+        android:textColor="@android:color/white" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/habitRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         android:layout_weight="1"
-        android:paddingTop="16dp" />
+        android:clipToPadding="false"
+        android:paddingBottom="12dp"
+        android:paddingTop="4dp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSync"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sync Habits" />
+        android:text="🔄 Sync Habits"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        app:cornerRadius="12dp"
+        android:layout_marginTop="16dp" />
 </LinearLayout>
