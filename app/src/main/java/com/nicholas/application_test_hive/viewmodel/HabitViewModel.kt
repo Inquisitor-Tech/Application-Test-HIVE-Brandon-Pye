@@ -1,9 +1,7 @@
 package com.nicholas.application_test_hive.viewmodel
 
 import android.app.Application
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
 import com.nicholas.application_test_hive.data.Habit
 import com.nicholas.application_test_hive.repository.HabitRepository
@@ -11,19 +9,24 @@ import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 
-
 class HabitViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = HabitRepository()
+    private val allHabits = mutableListOf<Habit>()
     private val _habits = MutableLiveData<List<Habit>>()
     val habits: LiveData<List<Habit>> = _habits
+
+    enum class FilterType { ALL, DONE, NOT_DONE }
+    private var currentFilter = FilterType.ALL
 
     fun loadHabits() {
         viewModelScope.launch {
             try {
-                _habits.value = repository.fetchHabits()
+                allHabits.clear()
+                allHabits.addAll(repository.fetchHabits())
+                applyFilter()
             } catch (e: Exception) {
-
+                Log.e("HabitViewModel", "Error loading habits", e)
                 _habits.value = emptyList()
             }
         }
@@ -34,9 +37,8 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
             id = 0,
             name = name,
             description = description,
-            lastCompletedDate = "Never/Not Done"
+            lastCompletedDate = "Never"
         )
-
         viewModelScope.launch {
             try {
                 repository.createHabit(newHabit)
@@ -47,7 +49,6 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
     fun markDone(habit: Habit) {
         val today = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
         val updatedHabit = habit.copy(lastCompletedDate = today)
@@ -57,8 +58,21 @@ class HabitViewModel(application: Application) : AndroidViewModel(application) {
                 repository.markHabitAsDone(updatedHabit)
                 loadHabits()
             } catch (e: Exception) {
-
+                Log.e("HabitViewModel", "Failed to update habit", e)
             }
+        }
+    }
+
+    fun setFilter(filter: FilterType) {
+        currentFilter = filter
+        applyFilter()
+    }
+
+    private fun applyFilter() {
+        _habits.value = when (currentFilter) {
+            FilterType.ALL -> allHabits
+            FilterType.DONE -> allHabits.filter { !it.lastCompletedDate.isNullOrBlank() && it.lastCompletedDate != "Never" }
+            FilterType.NOT_DONE -> allHabits.filter { it.lastCompletedDate.isNullOrBlank() || it.lastCompletedDate == "Never" }
         }
     }
 }

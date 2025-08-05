@@ -28,6 +28,17 @@
         android:paddingBottom="12dp"
         android:paddingTop="4dp" />
 
+    <Spinner
+        android:id="@+id/filterSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/primary"
+        android:spinnerMode="dropdown"
+        android:theme="@style/Theme.MaterialComponents.DayNight"
+        android:layout_marginBottom="12dp"/>
+
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSync"
         android:layout_width="match_parent"

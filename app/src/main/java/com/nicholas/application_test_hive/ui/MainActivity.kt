@@ -2,14 +2,19 @@ package com.nicholas.application_test_hive.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.nicholas.application_test_hive.R
 import com.nicholas.application_test_hive.viewmodel.HabitViewModel
+import com.nicholas.application_test_hive.viewmodel.HabitViewModel.FilterType
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,8 +29,9 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[HabitViewModel::class.java]
 
         val recyclerView = findViewById<RecyclerView>(R.id.habitRecyclerView)
-        val syncButton = findViewById<Button>(R.id.btnSync)
-        val addButton = findViewById<Button>(R.id.btnAddHabit)
+        val syncButton = findViewById<MaterialButton>(R.id.btnSync)
+        val addButton = findViewById<MaterialButton>(R.id.btnAddHabit)
+        val filterSpinner = findViewById<Spinner>(R.id.filterSpinner)
 
         adapter = HabitAdapter(emptyList()) { habit ->
             viewModel.markDone(habit)
@@ -33,6 +39,23 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
+
+        // Spinner setup
+        val filterOptions = listOf("All", "Done", "Not Done")
+        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, filterOptions)
+        filterSpinner.adapter = spinnerAdapter
+
+        filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (filterOptions[position]) {
+                    "All" -> viewModel.setFilter(FilterType.ALL)
+                    "Done" -> viewModel.setFilter(FilterType.DONE)
+                    "Not Done" -> viewModel.setFilter(FilterType.NOT_DONE)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
 
         syncButton.setOnClickListener {
             viewModel.loadHabits()
@@ -50,7 +73,6 @@ class MainActivity : AppCompatActivity() {
         viewModel.loadHabits()
     }
 
-    // 🔁 Refresh habits when returning from AddHabitActivity
     override fun onResume() {
         super.onResume()
         viewModel.loadHabits()
